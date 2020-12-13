@@ -1,0 +1,21 @@
+{"level":"error","ts":1607852412.2821214,"msg":"Book id from URL: 5 is different from id in request body: 8"}
+{"level":"error","ts":1607852431.9584854,"msg":"Error converting body to book: json: cannot unmarshal number into Go struct field Book.Name of type string"}
+[15:17:47] 200 - 2.6421ms GET /book/5
+[15:17:47] 404 - 0s GET /favicon.ico
+[15:17:57] 200 - 998.7µs GET /book/5
+[15:17:57] 200 - 1.0234ms GET /book/5
+[15:17:58] 200 - 953.2µs GET /book/5
+[15:17:58] 200 - 0s GET /book/5
+[15:25:28] 200 - 951µs GET /book/5
+[15:33:32] GET /book/5 - 200 1.9936ms
+[15:34:21] GET /book/5 - 200 3.3482ms
+[15:34:24] GET /book/5 - 200 996.9µs
+[15:34:25] GET /book/5 - 200 1.1101ms
+[15:34:25] GET /book/5 - 200 998.1µs
+[15:34:25] GET /book/5 - 200 997.4µs
+[15:34:25] GET /book/5 - 200 1.0856ms
+[15:34:25] GET /book/5 - 200 998.8µs
+[15:34:25] GET /book/5 - 200 0s
+[15:34:26] GET /book/5 - 200 1.0068ms
+[15:34:26] GET /book/5 - 200 997.3µs
+[15:34:26] GET /book/5 - 200 0s

@@ -1,0 +1,7 @@
+app.server.port: "8080"
+app.log.location: "app.log"
+fiber.log.format: "[${time}] ${method} ${path} - ${status} ${latency}\n"
+
+mongodb.server.address: "mongodb://localhost:27017"
+mongodb.database.name: "books"
+mongodb.collection.name: "fiction"

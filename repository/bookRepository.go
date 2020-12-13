@@ -5,19 +5,22 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gofiber-mongo/config"
 	"gofiber-mongo/domain"
 	"log"
 )
 
 var collection *mongo.Collection
 
-func init()  {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+func init() {
+	clientOptions := options.Client().ApplyURI(config.MongoServerAddress)
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
 	}
-	collection = client.Database("books").Collection("fiction")
+	collection = client.
+		Database(config.MongoDatabaseName).
+		Collection(config.MongoCollectionName)
 
 	_, err = getLastCreateId()
 	if err != nil && err.Error() == domain.NoDocs {
@@ -35,7 +38,7 @@ func GetBookById(id int64) (domain.Book, error) {
 
 func CreateBook(book domain.Book) (int64, error) {
 	id, _ := getLastCreateId()
-	book.Id = id+1
+	book.Id = id + 1
 	_, err := collection.InsertOne(context.TODO(), book)
 
 	if err == nil {
@@ -62,7 +65,7 @@ func updateLastCreatedId() error {
 	id, _ := getLastCreateId()
 	newCreateId := domain.LastRecordId{
 		Id:    domain.LastRecordIdEntry,
-		Value: id+1,
+		Value: id + 1,
 	}
 	_, err := collection.UpdateOne(context.TODO(),
 		bson.D{{"id", domain.LastRecordIdEntry}},
@@ -79,7 +82,7 @@ func seedLastCreateId() error {
 	return err
 }
 
-func getLastCreateId() (int64, error){
+func getLastCreateId() (int64, error) {
 	var record domain.LastRecordId
 	err := collection.FindOne(context.TODO(),
 		bson.D{{"id", domain.LastRecordIdEntry}}).Decode(&record)

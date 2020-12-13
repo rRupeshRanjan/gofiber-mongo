@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
+	"gofiber-mongo/config"
 	"gofiber-mongo/domain"
 	"gofiber-mongo/repository"
 	"strconv"
 )
+
+var logger = config.AppLogger
 
 func GetBookByIdHandler(c *fiber.Ctx) error {
 	c.Set("Content-Type", "application/json")
@@ -19,7 +22,7 @@ func GetBookByIdHandler(c *fiber.Ctx) error {
 		if bookFound {
 			bookString, marshalError := json.Marshal(book)
 			if marshalError != nil {
-				fmt.Printf("Error converting book data to json: %s\n", marshalError.Error())
+				logger.Error("Error converting book data to json: " + marshalError.Error())
 				return c.Status(500).Send(nil)
 			}
 			requestResponse = c.Status(200).Send(bookString)
@@ -35,14 +38,14 @@ func CreateBookHandler(c *fiber.Ctx) error {
 	if validBook {
 		bookId, createBookError := repository.CreateBook(book)
 		if createBookError != nil {
-			fmt.Println("Error while creating book: " + createBookError.Error())
+			logger.Error("Error while creating book: " + createBookError.Error())
 			return c.Status(500).Send(nil)
 		}
 
 		book.Id = bookId
 		bookString, unmarshalError := json.Marshal(book)
 		if unmarshalError != nil {
-			fmt.Println("Error converting data to json format")
+			logger.Error("Error converting data to json format: " + unmarshalError.Error())
 			return c.Status(500).Send(nil)
 		}
 		requestResponse = c.Status(200).Send(bookString)
@@ -65,7 +68,7 @@ func UpdateBookHandler(c *fiber.Ctx) error {
 			if bookFound {
 				updateBookError := repository.UpdateBook(book)
 				if updateBookError != nil {
-					fmt.Printf("Error while updating book: %s\n", updateBookError.Error())
+					logger.Error("Error while updating book: " + updateBookError.Error())
 					return c.Status(500).Send(nil)
 				}
 				requestResponse = c.Status(200).Send(c.Body())
@@ -80,7 +83,7 @@ func DeleteBookHandler(c *fiber.Ctx) error {
 	if valid {
 		deleteBookError := repository.DeleteBookById(id)
 		if deleteBookError != nil {
-			fmt.Printf("Error deleting book with id: %d\n", id)
+			logger.Error("Error deleting book with id: " + strconv.FormatInt(id, 10))
 			return c.Status(500).Send(nil)
 		}
 		requestResponse = c.Status(204).Send(nil)
@@ -103,7 +106,7 @@ func getBookByIdIfPresent(c *fiber.Ctx, id int64) (domain.Book, error, bool) {
 func extractIdFromParamsIfValid(c *fiber.Ctx) (int64, error, bool) {
 	id, err := strconv.ParseInt(c.Params("id"), 10, 64)
 	if err != nil {
-		fmt.Printf("Error converting id: %s to integer\n", c.Params("id"))
+		logger.Error("Error fetching integer from id: " + c.Params("id"))
 		return -1, c.Status(400).Send(nil), false
 	}
 	return id, nil, true
@@ -113,7 +116,7 @@ func getBookIfValid(c *fiber.Ctx) (domain.Book, error, bool) {
 	var book domain.Book
 	unmarshalError := json.Unmarshal(c.Body(), &book)
 	if unmarshalError != nil {
-		fmt.Println("Error converting body to book")
+		logger.Error("Error converting body to book: " + unmarshalError.Error())
 		return domain.Book{}, c.Status(400).Send(nil), false
 	}
 	return book, nil, true
@@ -124,7 +127,7 @@ func isValidUpdateRequest(c *fiber.Ctx, id int64) (domain.Book, error, bool) {
 	if !valid {
 		return domain.Book{}, response, false
 	} else if book.Id != id {
-		fmt.Printf("Id in request body and URL must be same, Url contains: %d, request body contains %d\n", id, book.Id)
+		logger.Error("Book id from URL: " + strconv.FormatInt(id, 10) + " is different from id in request body: " + strconv.FormatInt(book.Id, 10))
 		return domain.Book{}, c.Status(400).Send(nil), false
 	}
 	return book, nil, true
